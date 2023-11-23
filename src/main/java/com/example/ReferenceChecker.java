@@ -4,10 +4,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ReferenceChecker {
-    public static boolean isReferencePageExists(String includeName) {
+    public static boolean isReferencePageExists(String referenceLink) {
         try {
-            String cppReferenceLink = "https://en.cppreference.com/w/cpp/header/" + includeName;
-            URL url = new URL(cppReferenceLink);
+            URL url = new URL(referenceLink);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 

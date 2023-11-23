@@ -6,9 +6,13 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -16,7 +20,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.example.ReferenceChecker.isReferencePageExists;
 
@@ -56,31 +62,49 @@ public class IncludesWebsitesContent implements ToolWindowFactory {
                     }
                 }
             });
+            JBScrollPane scrollPane = new JBScrollPane(editorPane);
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             JButton analyzeButton = new JButton("Analyze Includes");
             analyzeButton.addActionListener(e -> analyzeIncludes(project));
             setToolbar(analyzeButton);
-            setContent(editorPane);
+            setContent(scrollPane);
+        }
+        private String getAdditionalInfo(String site) {
+            String additionalInfo = "";
+            try {
+                Document document = Jsoup.connect(site).get();
+
+                Element contentElement = document.selectFirst(".content p");
+                if (contentElement != null) {
+                    additionalInfo = contentElement.text().trim();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return additionalInfo;
         }
 
         private void analyzeIncludes(Project project) {
             VirtualFile virtualFile = getCurrentFile(project);
-            List<String> includes = IncludeAnalyzer.getIncludes(project, virtualFile);
+            List<String> includes = IncludeAnalyzer.getIncludes(virtualFile);
             StringBuilder htmlContent = new StringBuilder("<html><body>");
-
+            Set<String> set = new HashSet<>(includes);
+            includes.clear();
+            includes.addAll(set);
             for (String include : includes) {
-                boolean cppReferenceExists = isReferencePageExists(include);
+                String referenceLink = "https://learn.microsoft.com/en-us/cpp/standard-library/" + include;
+                boolean referenceExists = isReferencePageExists(referenceLink);
 
-                // Вставляем название инклюда и ссылку в HTML-контент
-
-                if (cppReferenceExists) {
-                    String referenceLink = "https://learn.microsoft.com/ru-ru/cpp/standard-library/" + include;
-                    htmlContent.append("<p>").append(" - ").append("<a href=\"").append(referenceLink).append("\">").append(include).append("</a>").append("</p>");
+                if (referenceExists) {
+                    String information = getAdditionalInfo(referenceLink);
+                    htmlContent.append("<p>").append(" - ").append("<a href=\"").append(referenceLink).append("\">").append(include).append("</a>").append(": ").append(information).append("</p>");
                 }
             }
 
             htmlContent.append("</body></html>");
 
-            // Устанавливаем HTML-контент в JTextPane
             editorPane.setText(htmlContent.toString());
         }
     }

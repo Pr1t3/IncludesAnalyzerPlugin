@@ -1,6 +1,5 @@
 package com.example;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class IncludeAnalyzer {
 
-    public static List<String> getIncludes(Project project, VirtualFile virtualFile) {
+    public static List<String> getIncludes(VirtualFile virtualFile) {
         List<String> includes = new ArrayList<>();
         if (virtualFile != null && virtualFile.isValid()) {
             try {
@@ -25,8 +24,6 @@ public class IncludeAnalyzer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            System.err.println("Invalid or null VirtualFile");
         }
         return includes;
     }
