@@ -1,0 +1,13 @@
+<idea-plugin>
+    <id>com.example.MyPlugin</id>
+    <name>Includes Websites</name>
+    <version>1.0</version>
+
+    <description><![CDATA[
+        Show includes websites
+    ]]></description>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Includes" anchor="right" factoryClass="com.example.IncludeInfoToolWindowFactory"/>
+    </extensions>
+</idea-plugin>
