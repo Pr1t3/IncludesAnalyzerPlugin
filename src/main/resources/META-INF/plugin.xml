@@ -8,6 +8,6 @@
     ]]></description>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Includes" anchor="right" factoryClass="com.example.IncludeInfoToolWindowFactory"/>
+        <toolWindow id="Includes" anchor="right" factoryClass="com.example.IncludesWebsitesContent"/>
     </extensions>
 </idea-plugin>
